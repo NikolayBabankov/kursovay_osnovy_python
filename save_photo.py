@@ -58,18 +58,18 @@ def upload(token):
     files = os.listdir('photos/')
     print('Загружаем фото на Яндекс Диск')
     for n in tqdm(files):
+        directory = 'photos/' + n
+        url = 'https://cloud-api.yandex.net:443/v1/disk/resources/upload'
+        params = {'path': 'photos/' + n}
+        headers = {'Authorization': token}
+        resp = requests.get(url, params=params, headers=headers)
+        resp2 = resp.json()
+        operation_id = resp2['operation_id']
+        url2 = resp2['href']
+        with open(directory, 'rb') as f:
+            requests.put(url2, headers=headers, data=f)
         status = ''
         while status != 'success':
-            directory = 'photos/' + n
-            url = 'https://cloud-api.yandex.net:443/v1/disk/resources/upload'
-            params = {'path': 'photos/' + n}
-            headers = {'Authorization': token}
-            resp = requests.get(url, params=params, headers=headers)
-            resp2 = resp.json()
-            operation_id = resp2['operation_id']
-            url2 = resp2['href']
-            with open(directory, 'rb') as f:
-                requests.put(url2, headers=headers, data=f)
             url_verif = 'https://cloud-api.yandex.net:443/v1/disk/operations/' + operation_id 
             verif_operation = requests.get(url_verif, headers=headers)
             verif_dict = (verif_operation.json())
